@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CardService.src.CardActions.Api.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CardService.src.CardActions.Api.Controllers
@@ -10,10 +11,15 @@ namespace CardService.src.CardActions.Api.Controllers
         private readonly Services.CardService _cards;
 
         private readonly ILogger<CardActionsController> _logger;
+        private readonly IAllowedActionsEngine _allowActionEngine;
 
-        public CardActionsController(Services.CardService service, ILogger<CardActionsController> logger)
+        public CardActionsController(
+            Services.CardService service,
+            IAllowedActionsEngine allowedActionsEngine,
+            ILogger<CardActionsController> logger)
         {
             _cards = service;
+            _allowActionEngine = allowedActionsEngine;
             _logger = logger;
         }
 
@@ -24,12 +30,12 @@ namespace CardService.src.CardActions.Api.Controllers
         }
 
         [HttpGet("users/{userId}/cards/{cardNumber}/actions")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType<CardActionsResponse>(StatusCodes.Status200OK)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status503ServiceUnavailable)]
-        public async Task<ActionResult> GetAllowedActions(
+        public async Task<ActionResult<CardActionsResponse>> GetAllowedActions(
             string userId,
             string cardNumber,
             CancellationToken cancellationToken)
@@ -52,11 +58,7 @@ namespace CardService.src.CardActions.Api.Controllers
                 });
             }
 
-            return Ok(new {
-                userID = userId,
-                cardNumber = card.CardNumber,
-                cardType = card.CardType,
-            });
+            return Ok(new CardActionsResponse(userId, card.CardNumber, _allowActionEngine.GetAllowedActions(card)));
         }
 
     }

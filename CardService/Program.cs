@@ -10,16 +10,18 @@ namespace CardService
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddProblemDetails();
             builder.Services.AddHealthChecks();
             builder.Services.AddControllers()
                 .AddJsonOptions(options => 
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
             builder.Services.AddSingleton<CardService.src.CardActions.Api.Services.CardService>();
+            builder.Services.AddSingleton<CardService.src.CardActions.Api.Models.IAllowedActionsEngine, CardService.src.CardActions.Api.Models.AllowedActionsEngine>();
 
 
 
             var app = builder.Build();
-
+            app.UseExceptionHandler();
             app.MapHealthChecks("/health");
             app.MapControllers();
             app.MapGet("/", () => Results.Ok(new 

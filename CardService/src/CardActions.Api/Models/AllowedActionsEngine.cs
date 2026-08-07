@@ -1,7 +1,5 @@
-﻿using CardService.src.CardActions.Api.Utils;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Frozen;
 using System.Diagnostics;
 
 namespace CardService.src.CardActions.Api.Models
@@ -20,7 +18,7 @@ namespace CardService.src.CardActions.Api.Models
 
         #region Card Types
 
-        private static readonly HashSet<CardType> AllCardTypes = Types(
+        private static readonly FrozenSet<CardType> AllCardTypes = Types(
             CardType.Prepaid,
             CardType.Debit,
             CardType.Credit);
@@ -29,7 +27,7 @@ namespace CardService.src.CardActions.Api.Models
 
         #region Card Statuses
 
-        private static readonly HashSet<CardStatus> AllCardStatuses = Statuses(
+        private static readonly FrozenSet<CardStatus> AllCardStatuses = Statuses(
             CardStatus.Ordered,
             CardStatus.Inactive,
             CardStatus.Active,
@@ -38,12 +36,12 @@ namespace CardService.src.CardActions.Api.Models
             CardStatus.Expired,
             CardStatus.Closed);
 
-        private static readonly HashSet<CardStatus> InitialStatuses = Statuses(
+        private static readonly FrozenSet<CardStatus> InitialStatuses = Statuses(
             CardStatus.Ordered,
             CardStatus.Inactive,
             CardStatus.Active);
 
-        private static readonly HashSet<CardStatus> InitialOrBlockedStatuses = Statuses(
+        private static readonly FrozenSet<CardStatus> InitialOrBlockedStatuses = Statuses(
             CardStatus.Ordered,
             CardStatus.Inactive,
             CardStatus.Active,
@@ -66,7 +64,7 @@ namespace CardService.src.CardActions.Api.Models
                 ToClause(AllCardTypes, AllCardStatuses)),
 
             new(AllowedAction.Action5,
-                ToClause(CardType.Credit.ToHashSet(), AllCardStatuses)),
+                ToClause(Types(CardType.Credit), AllCardStatuses)),
 
             new(AllowedAction.Action6,
                 ToClause(AllCardTypes, InitialOrBlockedStatuses, PinRequirement.Set)),
@@ -94,34 +92,52 @@ namespace CardService.src.CardActions.Api.Models
                 ToClause(AllCardTypes, InitialStatuses)),
         ];
 
-        private static HashSet<CardType> Types(params CardType[] cardTypes) =>
-            cardTypes.ToHashSet();
+        private static FrozenSet<CardType> Types(params CardType[] cardTypes) =>
+            cardTypes.ToFrozenSet();
 
-        private static HashSet<CardStatus> Statuses(params CardStatus[] statuses) =>
-            statuses.ToHashSet();
+        private static FrozenSet<CardStatus> Statuses(params CardStatus[] statuses) =>
+            statuses.ToFrozenSet();
 
         private static Clause ToClause(
             IReadOnlySet<CardType> cardTypes,
             IReadOnlySet<CardStatus> cardStatuses,
             PinRequirement pin = PinRequirement.Any) => new(cardTypes, cardStatuses, pin);
 
-        private sealed record Clause(
-            IReadOnlySet<CardType> CardTypes,
-            IReadOnlySet<CardStatus> CardStatuses,
-            PinRequirement Pin)
+        private sealed record Clause
         {
+            private IReadOnlySet<CardType> _cardTypes { get; }
+            private IReadOnlySet<CardStatus> _cardStatuses { get; }
+            private PinRequirement _pin { get; }
+
+            public Clause(IReadOnlySet<CardType> cardTypes, 
+                IReadOnlySet<CardStatus> cardStatuses,
+                PinRequirement pin)
+            {
+                ArgumentNullException.ThrowIfNull(cardTypes, nameof(cardTypes));
+                ArgumentNullException.ThrowIfNull(cardStatuses, nameof(cardStatuses));
+
+                if (cardTypes.Count == 0)
+                    throw new ArgumentException("At least one card type is required.", nameof(cardTypes));
+
+                if (cardStatuses.Count == 0)
+                    throw new ArgumentException("At least one card status is required.", nameof(cardStatuses));
+
+                _cardTypes = cardTypes;
+                _cardStatuses = cardStatuses;
+                _pin = pin;
+            }
             public bool Matches(CardDetails card) =>
-                CardTypes.Contains(card.CardType) &&
-                CardStatuses.Contains(card.CardStatus) &&
+                _cardTypes.Contains(card.CardType) &&
+                _cardStatuses.Contains(card.CardStatus) &&
                 MatchesPin(card.IsPinSet);
 
             private bool MatchesPin(bool isPinSet) =>
-                Pin switch
+                _pin switch
                 {
                     PinRequirement.Any => true,
                     PinRequirement.Set => isPinSet,
                     PinRequirement.NotSet => !isPinSet,
-                    _ => throw new UnreachableException($"Unhandled {nameof(PinRequirement)}: {Pin}")
+                    _ => throw new UnreachableException($"Unhandled {nameof(PinRequirement)}: {_pin}")
                 };
         }
 

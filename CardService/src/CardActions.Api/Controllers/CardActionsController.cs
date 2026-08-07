@@ -6,7 +6,7 @@ namespace CardService.src.CardActions.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public sealed class CardActionsController : Controller
+    public sealed class CardActionsController : ControllerBase
     {
         private readonly Services.CardService _cards;
 
@@ -23,38 +23,23 @@ namespace CardService.src.CardActions.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public IActionResult Health()
-        {
-            return Ok("Healthy");
-        }
-
         [HttpGet("users/{userId}/cards/{cardNumber}/actions")]
         [ProducesResponseType<CardActionsResponse>(StatusCodes.Status200OK)]
-        [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-        [ProducesResponseType<ProblemDetails>(StatusCodes.Status429TooManyRequests)]
-        [ProducesResponseType<ProblemDetails>(StatusCodes.Status503ServiceUnavailable)]
         public async Task<ActionResult<CardActionsResponse>> GetAllowedActions(
             string userId,
-            string cardNumber,
-            CancellationToken cancellationToken)
+            string cardNumber)
         {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(cardNumber))
-            {
-                return BadRequest();
-            }
-
             var card = await _cards.GetCardDetails(userId, cardNumber);
             if (card is null)
             {
-                _logger.LogDebug("Card '{0}' or  user '{1}' was not found.", userId, cardNumber);
+                _logger.LogDebug("User '{UserId}' or card '{CardNumber}' was not found.", userId, cardNumber);
 
                 return NotFound(new ProblemDetails
                 {
                     Status = StatusCodes.Status404NotFound,
                     Title = "Card or user not found",
-                    Detail = $"Card '{cardNumber}' or  user '{userId}' was not found."
+                    Detail = $"User '{userId}' or card '{cardNumber}' was not found."
                 });
             }
 

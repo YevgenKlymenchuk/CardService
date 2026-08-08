@@ -1,4 +1,6 @@
-﻿namespace CardService.src.CardActions.Api.Models
+﻿using CardService.src.CardActions.Api.Models;
+
+namespace CardService.src.CardActions.Api.Services
 {
     public interface IAllowedActionsEngine
     {

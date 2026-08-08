@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Diagnostics;
+using CardService.src.CardActions.Api.Services;
 
 namespace CardService.src.CardActions.Api.Models
 {

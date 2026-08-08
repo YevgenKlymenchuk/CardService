@@ -1,6 +1,6 @@
-﻿using CardService.src.CardActions.Api.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
+using CardService.src.CardActions.Api.Models;
+using CardService.src.CardActions.Api.Services;
 
 namespace CardService.src.CardActions.Api.Controllers
 {
@@ -35,12 +35,11 @@ namespace CardService.src.CardActions.Api.Controllers
             {
                 _logger.LogDebug("User '{UserId}' or card '{CardNumber}' was not found.", userId, cardNumber);
 
-                return NotFound(new ProblemDetails
-                {
-                    Status = StatusCodes.Status404NotFound,
-                    Title = "Card or user not found",
-                    Detail = $"User '{userId}' or card '{cardNumber}' was not found."
-                });
+                return Problem(
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Card or user not found",
+                    detail: $"User '{userId}' or card '{cardNumber}' was not found.",
+                    instance: HttpContext.Request.Path);
             }
 
             return Ok(new CardActionsResponse(userId, card.CardNumber, _allowActionEngine.GetAllowedActions(card)));

@@ -1,20 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using CardService.src.CardActions.Api.Models;
-using CardService.src.CardActions.Api.Services;
+using CardService.CardActions.Api.Models;
+using CardService.CardActions.Api.Services;
 
-namespace CardService.src.CardActions.Api.Controllers
+namespace CardService.CardActions.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public sealed class CardActionsController : ControllerBase
     {
-        private readonly Services.CardService _cards;
+        private readonly ICardRepository _cards;
 
         private readonly ILogger<CardActionsController> _logger;
         private readonly IAllowedActionsEngine _allowActionEngine;
 
         public CardActionsController(
-            Services.CardService service,
+            ICardRepository service,
             IAllowedActionsEngine allowedActionsEngine,
             ILogger<CardActionsController> logger)
         {
@@ -28,9 +28,10 @@ namespace CardService.src.CardActions.Api.Controllers
         [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CardActionsResponse>> GetAllowedActions(
             string userId,
-            string cardNumber)
+            string cardNumber,
+            CancellationToken cancellationToken)
         {
-            var card = await _cards.GetCardDetails(userId, cardNumber);
+            var card = await _cards.GetCardDetails(userId, cardNumber, cancellationToken);
             if (card is null)
             {
                 _logger.LogDebug("User '{UserId}' or card '{CardNumber}' was not found.", userId, cardNumber);

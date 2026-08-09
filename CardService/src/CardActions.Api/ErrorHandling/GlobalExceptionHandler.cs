@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CardService.src.CardActions.Api.ErrorHandling
+namespace CardService.CardActions.Api.ErrorHandling
 {
     public sealed class GlobalExceptionHandler: IExceptionHandler
     {

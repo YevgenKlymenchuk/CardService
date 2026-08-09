@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Diagnostics;
-using CardService.src.CardActions.Api.Services;
+using CardService.CardActions.Api.Models;
 
-namespace CardService.src.CardActions.Api.Models
+namespace CardService.CardActions.Api.Services
 {
     public sealed partial class AllowedActionsEngine : IAllowedActionsEngine
     {
@@ -157,6 +157,12 @@ namespace CardService.src.CardActions.Api.Models
             }
 
             public bool Matches(CardDetails card) => _clauses.Any(c => c.Matches(card));
+        }
+        private enum PinRequirement
+        {
+            Any,
+            Set,
+            NotSet
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace CardService.src.CardActions.Api.Models
+﻿namespace CardService.CardActions.Api.Models
 {
     public record CardDetails(
         string CardNumber, 

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CardService.src.CardActions.Api.ErrorHandling;
-using CardService.src.CardActions.Api.Services;
+using CardService.CardActions.Api.ErrorHandling;
+using CardService.CardActions.Api.Services;
 
 namespace CardService
 {
@@ -25,8 +25,8 @@ namespace CardService
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
-            builder.Services.AddSingleton<CardService.src.CardActions.Api.Services.CardService>();
-            builder.Services.AddSingleton<IAllowedActionsEngine, CardService.src.CardActions.Api.Models.AllowedActionsEngine>();
+            builder.Services.AddSingleton<ICardRepository, CardRepository>();
+            builder.Services.AddSingleton<IAllowedActionsEngine, AllowedActionsEngine>();
 
 
 

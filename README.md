@@ -1,5 +1,7 @@
 ﻿# CardService
 
+[![CI](https://github.com/YevgenKlymenchuk/CardService/actions/workflows/ci.yml/badge.svg)](https://github.com/YevgenKlymenchuk/CardService/actions/workflows/ci.yml)
+
 .NET 8 Web API for the "allowed card actions" task. Give it a userId and a card number, get back the list of actions allowed on that card, based on card type, status and PIN.
 
 ## Structure

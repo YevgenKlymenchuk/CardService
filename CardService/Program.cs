@@ -22,6 +22,10 @@ namespace CardService
             });
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddHealthChecks();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new() { Title = "Card Actions API", Version = "v1" });
+            });
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)));
@@ -29,17 +33,17 @@ namespace CardService
             builder.Services.AddSingleton<IAllowedActionsEngine, AllowedActionsEngine>();
 
 
-
             var app = builder.Build();
             app.UseExceptionHandler();
             app.UseStatusCodePages();
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+                app.MapGet("/", () => Results.Redirect("/swagger"));
+            }
             app.MapHealthChecks("/health");
             app.MapControllers();
-            app.MapGet("/", () => Results.Ok(new
-            {
-                name = "CardService API",
-                status = "running"
-            }));
 
             app.Run();
         }

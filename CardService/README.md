@@ -42,6 +42,8 @@ dotnet run
 
 Default `http` profile (`http://localhost:5299`). For https: `dotnet run --launch-profile https`.
 
+In Development, root (`/`) redirects to `/swagger`.
+
 ```
 GET /api/CardActions/users/User1/cards/Card11/actions
 ```

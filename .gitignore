@@ -2,8 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/.vs/CardService
-/CardService/bin/Debug/net8.0
-/CardService/obj
-/CardService/bin/Release/net8.0
-/CardService/CardService.csproj.user
+.vs/CardService
+*/bin
+*/obj
+*/*.user

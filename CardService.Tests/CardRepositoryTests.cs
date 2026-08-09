@@ -1,5 +1,6 @@
-﻿using Xunit;
+﻿using CardService.CardActions.Api.Models;
 using CardService.CardActions.Api.Services;
+using Xunit;
 
 namespace CardService.Tests.Services
 {
@@ -42,6 +43,30 @@ namespace CardService.Tests.Services
                 await Assert.ThrowsAnyAsync<OperationCanceledException>(
                     () => _repository.GetCardDetails("User1", "Card1", cts.Token));
             }
+        }
+
+        [Theory(DisplayName = "GetCardDetails check all prepared combinations of CardType and CardStatus")]
+        [InlineData("User1")]
+        [InlineData("User2")]
+        [InlineData("User3")]
+        public async Task GetCardDetails_CheckAllCombinationsOfCardTypeAndCardStatus(string userId)
+        {
+            var expectedCombinations = Enum.GetValues<CardType>()
+                .SelectMany(type => Enum.GetValues<CardStatus>(), (type, status) => (type, status))
+                .ToHashSet();
+
+            var lookups = Enumerable.Range(1, expectedCombinations.Count)
+                .Select(index => _repository.GetCardDetails(
+                    userId, 
+                    $"Card{userId.Substring(4)}{index}", 
+                    CancellationToken.None));
+
+            var cards = await Task.WhenAll(lookups);
+
+            Assert.All(cards, card => Assert.NotNull(card));
+
+            var actualCombinations = cards.Select(c => (c!.CardType, c.CardStatus)).ToHashSet();
+            Assert.Equal(expectedCombinations, actualCombinations);
         }
     }
 }

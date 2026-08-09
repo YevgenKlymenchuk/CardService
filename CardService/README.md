@@ -57,3 +57,15 @@ GET /api/CardActions/users/User1/cards/Card11/actions
 ```
 
 Enums serialize as upper snake_case (ACTION1, not Action1).
+
+## Tests
+
+```bash
+dotnet test
+```
+
+CardService.Tests covers three things separately:
+
+- `AllowedActionsEngineTests` - the whole rules table (3 types x 7 statuses x PIN set/not set) + examples from the task description as standalone cases.
+- `CardRepositoryTests` - known/unknown user and card, cancelled token.
+- `CardActionsControllerTests` - 200 with the engine's result mapped into the response, 404 with ProblemDetails when the card isn't found, and that the engine isn't called at all in that case. Repository and engine are mocked (Moq) so this only checks the controller's own wiring, not the rules themselves.

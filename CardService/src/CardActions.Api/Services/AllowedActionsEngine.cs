@@ -5,7 +5,7 @@ using CardService.CardActions.Api.Models;
 
 namespace CardService.CardActions.Api.Services
 {
-    public sealed partial class AllowedActionsEngine : IAllowedActionsEngine
+    public sealed class AllowedActionsEngine : IAllowedActionsEngine
     {
         public IReadOnlyList<AllowedAction> GetAllowedActions(CardDetails card)
         {

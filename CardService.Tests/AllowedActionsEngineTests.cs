@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using Xunit;
 
 using CardService.CardActions.Api.Models;

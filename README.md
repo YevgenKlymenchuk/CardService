@@ -32,7 +32,8 @@ allowed without PIN in ordered/inactive/active, allowed with PIN when blocked.
 
 - Not found -> 404, ProblemDetails.
 - Unhandled -> `GlobalExceptionHandler`, logged, 500 ProblemDetails, no stack trace to client.
-- Empty/missing userId or cardNumber -> 400 automatically. With `[ApiController]` + nullable reference types on, a non-nullable string route param is treated as required, so this is already covered without extra checks - tested it with a blank/whitespace value to be sure.
+- Missing userId or cardNumber -> 400 automatically. With `[ApiController]` + nullable reference types on, a non-nullable string route param is treated as required, so this is already covered without extra checks - tested it with a blank/whitespace value to be sure.
+- A missing route segment does not match the endpoint and therefore results in 404.
 - CancellationToken passed down to Task.Delay so a dropped client doesn't just keep it running for no reason.
 
 ## Running
